@@ -34,13 +34,16 @@ $routes->setAutoRoute(true);
 $routes->get('/', 'Home::index');
 
 $routes->get('/person/actor', 'Person::actorIndex');
+
 $routes->get('/drama/add', 'Drama::dramaAdd');
 $routes->add('/drama/save', 'Drama::dramaSave');
+$routes->get('/drama/writer/add/(:any)', 'Drama::dramaWriterAdd/$1');
+$routes->add('/drama/writer/save', 'Drama::dramaWriterSave');
+$routes->get('/drama/(:any)', 'Drama::dramaDetails/$1');
 // $routes->get('/drama/edit-drama/(:any)', 'Drama::editDrama/$1');
 // $routes->get('/drama/add-cast/(:any)', 'Drama::addCast/$1');
 // $routes->get('/drama/save-cast/(:any)', 'Drama::saveCast/$1');
 // $routes->delete('/drama/(:num)', 'Drama::delete/$1');
-// $routes->get('/drama/(:any )', 'Drama::detailDrama/$1');
 
 $routes->get('/person/actor/add', 'Person::actorAdd');
 // $routes->add('/person/actor/save-actor', 'Person::saveActor');

@@ -9,27 +9,26 @@ use App\Models\WriterModel;
 use App\Models\DramaModel;
 use App\Models\LanguageModel;
 use App\Models\NetworkModel;
-use CodeIgniter\Language\Language;
 
 class Drama extends BaseController
 {
 	protected $dramaModel;
 	protected $dramaDetailModel;
 	protected $directorModel;
-	// protected $writerModel;
 	protected $networkModel;
 	protected $countryModel;
 	protected $languageModel;
+	protected $writerModel;
 
 	public function __construct()
 	{
 		$this->dramaModel = new DramaModel();
 		$this->dramaDetailModel = new DramaDetailModel();
 		$this->directorModel = new DirectorModel();
-		// $this->writerModel = new WriterModel();
 		$this->networkModel = new NetworkModel();
 		$this->countryModel = new CountryModel();
 		$this->languageModel = new LanguageModel();
+		$this->writerModel = new WriterModel();
 	}
 
 	public function index()
@@ -44,15 +43,41 @@ class Drama extends BaseController
 	public function dramaAdd()
 	{
 		$controllerData = [
-			'breadcrumb' => 'drama/add-drama',
+			'breadcrumb' => 'drama/add',
 			'validator' => \Config\Services::validation(),
 			'directorList' => $this->directorModel->getDirector(),
 			'networkList' => $this->networkModel->getNetwork(),
 			'countryList' => $this->countryModel->getCountry(),
 			'languageList' => $this->languageModel->getLanguage()
 		];
-		// dd($this->writerModel->getWriter());
+		// dd($controllerData['languageList']);
 		return view('appDrama/dramaAdd', $controllerData);
+	}
+
+	public function dramaWriterAdd($slug)
+	{
+		$controllerData = [
+			'breadcrumb' => 'drama/add/writer',
+			'validator' => \Config\Services::validation(),
+			'dramaDetail' => $this->dramaModel->getDramaDetail($slug),
+			'writerList' => $this->writerModel->getWriter()
+		];
+
+		return view('appDrama/dramaWriterAdd', $controllerData);
+	}
+
+	public function dramaWriterSave()
+	{
+		$dramaWriterData = [
+			'id_drama' => $this->request->getVar('drama-id'),
+			'id_writer' => $this->request->getVar('writer-select'),
+			'role' => $this->request->getVar('writer-type')
+		];
+		// dd($dramaWriterData);
+		$slug = $this->request->getVar('slug');
+
+		$this->dramaModel->dramaWriterSave($dramaWriterData);
+		return redirect()->to('/drama/' . $slug);
 	}
 
 	public function dramaSave()
@@ -134,20 +159,22 @@ class Drama extends BaseController
 		return redirect()->to('/drama');
 	}
 
-	// 	public function detailDrama($slug)
-	// 	{
-	// 		$controllerData = [
-	// 			'breadcrumb' => 'drama/detail',
-	// 			'dramaDetail' => $this->dramaModel->getDramaDetail($slug),
-	// 			'cast' => $this->dramaModel->getCast($slug)
-	// 		];
-	// 		// dd($controllerData);
-	// 		return view('app-dramaList/detail-drama', $controllerData);
+	public function dramaDetails($slug)
+	{
+		$controllerData = [
+			'breadcrumb' => 'drama/detail',
+			'dramaDetail' => $this->dramaModel->getDramaDetail($slug),
+			'writerList' => $this->writerModel->getDramaWriter($slug),
+			'writerCount' => $this->writerModel->getDramaWriterCount($slug)
+			// 'cast' => $this->dramaModel->getCast($slug)
+		];
+		// dd($controllerData['writerCount']);
 
-	// 		if (empty($controllerData['dramaDetail'])) {
-	// 			throw new \CodeIgniter\Exceptions\PageNotFoundException('Drama ' . $slug . ' not found in our database');
-	// 		}
-	// 	}
+		if (empty($controllerData['dramaDetail'])) {
+			throw new \CodeIgniter\Exceptions\PageNotFoundException('Drama ' . $slug . ' not found in our database');
+		}
+		return view('appDrama/dramaDetail', $controllerData);
+	}
 
 	// 	public function deleteDrama($id)
 	// 	{
